@@ -9,7 +9,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 0xff
         self.reg = [0] * 0x08
-        self.pc = self.ram[0]
+        self.pc = 0x00
         self.MAR = 0  # Memory addrress for reading or writing to
         self.MDR = 0  # value to write or that was just read
         self.fl = 0
@@ -20,7 +20,7 @@ class CPU:
         return self.ram[MAR]
 
     def ram_write(self, MDR, MAR):
-        self.ram[MAR] = MAR
+        self.ram[MAR] = MDR
 
     def load(self):
         """Load a program into memory."""
@@ -86,7 +86,7 @@ class CPU:
         running = True
 
         while running:
-            
+            self.IR = self.pc
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
@@ -96,7 +96,7 @@ class CPU:
             elif self.ram[self.IR] == LDI:
                 self.reg[operand_a] = operand_b
                 self.pc += 3
-            # elif self.ram[self.IR] == PRN:
-            #     print(self.reg[operand_a])
-            #     self.pc += 2
+            elif self.ram[self.IR] == PRN:
+                print(self.reg[operand_a])
+                self.pc += 2
 
