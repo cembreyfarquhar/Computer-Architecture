@@ -15,6 +15,14 @@ class CPU:
         self.fl = 0
 
 
+        # opcodes
+        HLT = 0b00000001
+        LDI = 0b10000010
+        PRN = 0b01000111
+        MUL = 0b10100010
+        # self.
+
+
     def ram_read(self, MAR):
         # print(f'READ ADDRESS: {read_address}')
         return self.ram[MAR]
@@ -86,12 +94,6 @@ class CPU:
         """Run the CPU."""
         self.IR = self.pc
         # self.trace()
-
-        # opcodes
-        HLT = 0b00000001
-        LDI = 0b10000010
-        PRN = 0b01000111
-        MUL = 0b10100010
         
 
 
