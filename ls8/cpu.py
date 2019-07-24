@@ -57,7 +57,8 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -84,12 +85,14 @@ class CPU:
     def run(self):
         """Run the CPU."""
         self.IR = self.pc
-        self.trace()
+        # self.trace()
 
         # opcodes
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+        
+
 
         running = True
 
