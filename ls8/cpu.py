@@ -91,6 +91,7 @@ class CPU:
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
+        MUL = 0b10100010
         
 
 
@@ -110,4 +111,7 @@ class CPU:
             elif self.ram[self.IR] == PRN:
                 print(self.reg[operand_a])
                 self.pc += 2
+            elif self.ram[self.IR] == MUL:
+                print(self.alu("MUL", operand_a, operand_b))
+                self.pc += 3
 
