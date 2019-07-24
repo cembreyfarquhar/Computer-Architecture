@@ -113,8 +113,11 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
+            
+
             if self.ram[self.IR] in opcodes:
                 self.dispatch[self.ram[self.IR]]
+                
             else:
                 print("Invalid operand")
                 sys.exit()
