@@ -13,6 +13,7 @@ class CPU:
         self.MAR = 0  # Memory addrress for reading or writing to
         self.MDR = 0  # value to write or that was just read
         self.fl = 0
+        self.running = False
 
 
         # opcodes
@@ -20,7 +21,26 @@ class CPU:
         LDI = 0b10000010
         PRN = 0b01000111
         MUL = 0b10100010
-        # self.
+        
+        self.dispatch = {
+            HLT: self.handle_HLT,
+            LDI: self.handle_LDI,
+            PRN: self.handle_PRN,
+            MUL: self.handle_MUL,
+        }
+
+    def handle_HLT(self):
+        self.running = False
+        print("Program complete")
+
+    def handle_LDI(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+
+    def handle_PRN(self, operand_a):
+        print(self.reg[operand_a])
+
+    def handle_MUL(self, operand_a, operand_b):
+        self.alu("MUL", operand_a, operand_b)
 
 
     def ram_read(self, MAR):
@@ -35,18 +55,6 @@ class CPU:
 
         address = 0
 
-        # For now, we've just hardcoded a program:
-
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010, # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     0b01000111, # PRN R0
-        #     0b00000000,
-        #     0b00000001, # HLT
-        # ]
-
         # open file 
         with open(sys.argv[1]) as file:
             for line in file:
@@ -55,9 +63,6 @@ class CPU:
                     self.ram[address] = int(line[0:8], 2)
                     address += 1
             file.close
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -94,26 +99,37 @@ class CPU:
         """Run the CPU."""
         self.IR = self.pc
         # self.trace()
+
+        HLT = 0b00000001
+        LDI = 0b10000010
+        PRN = 0b01000111
+        MUL = 0b10100010
+        opcodes = {HLT, LDI, PRN, MUL}
         
+        self.running = True
 
-
-        running = True
-
-        while running:
+        while self.running:
             self.IR = self.pc
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            # exit condition
-            if self.ram[self.IR] == HLT:
-                running = False
-            elif self.ram[self.IR] == LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif self.ram[self.IR] == PRN:
-                print(self.reg[operand_a])
-                self.pc += 2
-            elif self.ram[self.IR] == MUL:
-                print(self.alu("MUL", operand_a, operand_b))
-                self.pc += 3
+            if self.ram[self.IR] in opcodes:
+                self.dispatch[self.ram[self.IR]]
+            else:
+                print("Invalid operand")
+                sys.exit()
+
+
+            # # exit condition
+            # if self.ram[self.IR] == HLT:
+            #     running = False
+            # elif self.ram[self.IR] == LDI:
+            #     self.reg[operand_a] = operand_b
+            #     self.pc += 3
+            # elif self.ram[self.IR] == PRN:
+            #     print(self.reg[operand_a])
+            #     self.pc += 2
+            # elif self.ram[self.IR] == MUL:
+            #     print(self.alu("MUL", operand_a, operand_b))
+            #     self.pc += 3
 
