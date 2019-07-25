@@ -18,17 +18,26 @@ class CPU:
         self.reg[self.SP] = 0xf4  
 
 
+
         # opcodes
         HLT = 0b00000001
         LDI = 0b10000010
         PRN = 0b01000111
         MUL = 0b10100010
+        PUSH = 0b01000101
+        POP = 0b01000110
+        CALL = 0b01010000
+        RET = 0b00010001
         
         self.dispatch = {
             HLT: self.handle_HLT,
             LDI: self.handle_LDI,
             PRN: self.handle_PRN,
             MUL: self.handle_MUL,
+            PUSH: self.handle_PUSH,
+            POP: self.handle_POP,
+            CALL: self.handle_CALL,
+            RET: self.handle_RET
         }
 
     def handle_HLT(self, op_a, op_b):
