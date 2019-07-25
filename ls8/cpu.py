@@ -14,6 +14,8 @@ class CPU:
         self.MDR = 0  # value to write or that was just read
         self.fl = 0
         self.running = False
+        self.SP = 0x07  # R7 == stack pointer
+        self.reg[self.SP] = 0xf4  
 
 
         # opcodes
@@ -29,19 +31,21 @@ class CPU:
             MUL: self.handle_MUL,
         }
 
-    def handle_HLT(self):
+    def handle_HLT(self, op_a, op_b):
         self.running = False
         print("Program complete")
 
     def handle_LDI(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
+        self.pc += 3
 
-    def handle_PRN(self, operand_a):
+    def handle_PRN(self, operand_a, op_b):
         print(self.reg[operand_a])
+        self.pc += 2
 
     def handle_MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
-
+        self.pc += 3
 
     def ram_read(self, MAR):
         # print(f'READ ADDRESS: {read_address}')
@@ -109,14 +113,13 @@ class CPU:
         self.running = True
 
         while self.running:
-            self.IR = self.pc
+            self.IR = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
             
-
-            if self.ram[self.IR] in opcodes:
-                self.dispatch[self.ram[self.IR]]
+            if self.IR in opcodes:
+                self.dispatch[self.IR](operand_a, operand_b)
                 
             else:
                 print("Invalid operand")
