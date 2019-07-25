@@ -46,23 +46,29 @@ class CPU:
 
     def handle_LDI(self, operand_a, operand_b):
         self.reg[operand_a] = operand_b
-        self.pc += 3
 
     def handle_PRN(self, operand_a, op_b):
         print(self.reg[operand_a])
-        self.pc += 2
 
     def handle_MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
-        self.pc += 3
     
     def handle_PUSH(self, operand_a, operand_b):
+        self.reg[self.SP] -= 1
+        self.ram[self.reg[self.SP]] = self.reg[operand_a]
 
     def handle_POP(self, operand_a, operand_b):
+        self.reg[operand_a] = self.ram[self.reg[self.SP]]
+        self.reg[self.SP] += 1
 
     def handle_CALL(self, operand_a, operand_b):
+        self.reg[0x04] = self.pc + 2
+        self.handle_PUSH(0x04)
+        self.pc = self.reg[operand_a]
 
     def handle_RET(self, operand_a, operand_b):
+        self.handle_POP(0x04)
+        self.pc = self.reg[0x04]
 
 
     def ram_read(self, MAR):
@@ -120,7 +126,7 @@ class CPU:
     def run(self):
         """Run the CPU."""
         self.IR = self.pc
-        # self.trace()
+        self.trace()
 
         HLT = 0b00000001
         LDI = 0b10000010
@@ -135,9 +141,12 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
+
+            number_of_ops = (self.IR >> 6) & 0b11
             
             if self.IR in opcodes:
                 self.dispatch[self.IR](operand_a, operand_b)
+                self.pc += number_of_ops + 1
                 
             else:
                 print("Invalid operand")
