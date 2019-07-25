@@ -53,20 +53,20 @@ class CPU:
     def handle_MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
     
-    def handle_PUSH(self, operand_a, operand_b):
+    def handle_PUSH(self, operand_a, op_b):
         self.reg[self.SP] -= 1
         self.ram[self.reg[self.SP]] = self.reg[operand_a]
 
-    def handle_POP(self, operand_a, operand_b):
+    def handle_POP(self, operand_a, op_b):
         self.reg[operand_a] = self.ram[self.reg[self.SP]]
         self.reg[self.SP] += 1
 
-    def handle_CALL(self, operand_a, operand_b):
+    def handle_CALL(self, operand_a, op_b):
         self.reg[0x04] = self.pc + 2
-        self.handle_PUSH(0x04)
+        self.handle_PUSH(0x04, None)
         self.pc = self.reg[operand_a]
 
-    def handle_RET(self, operand_a, operand_b):
+    def handle_RET(self, op_a, op_b):
         self.handle_POP(0x04)
         self.pc = self.reg[0x04]
 
@@ -132,7 +132,12 @@ class CPU:
         LDI = 0b10000010
         PRN = 0b01000111
         MUL = 0b10100010
-        opcodes = {HLT, LDI, PRN, MUL}
+        PUSH = 0b01000101
+        POP = 0b01000110
+        CALL = 0b01010000
+        RET = 0b00010001
+        
+        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET}
         
         self.running = True
 
