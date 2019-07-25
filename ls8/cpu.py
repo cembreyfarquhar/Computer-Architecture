@@ -55,6 +55,15 @@ class CPU:
     def handle_MUL(self, operand_a, operand_b):
         self.alu("MUL", operand_a, operand_b)
         self.pc += 3
+    
+    def handle_PUSH(self, operand_a, operand_b):
+
+    def handle_POP(self, operand_a, operand_b):
+
+    def handle_CALL(self, operand_a, operand_b):
+
+    def handle_RET(self, operand_a, operand_b):
+
 
     def ram_read(self, MAR):
         # print(f'READ ADDRESS: {read_address}')
