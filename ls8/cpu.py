@@ -12,7 +12,7 @@ class CPU:
         self.pc = 0x00
         self.MAR = 0  # Memory addrress for reading or writing to
         self.MDR = 0  # value to write or that was just read
-        self.fl = 0
+        self.FL = 0b0000000
         self.running = False
         self.SP = 0x07  # R7 == stack pointer
         self.reg[self.SP] = 0xf4  
@@ -28,6 +28,8 @@ class CPU:
         POP = 0b01000110
         CALL = 0b01010000
         RET = 0b00010001
+        CMP = 0b10100111
+
         
         self.dispatch = {
             HLT: self.handle_HLT,
@@ -37,7 +39,8 @@ class CPU:
             PUSH: self.handle_PUSH,
             POP: self.handle_POP,
             CALL: self.handle_CALL,
-            RET: self.handle_RET
+            RET: self.handle_RET,
+            CMP: self.handle_CMP
         }
 
     def handle_HLT(self, op_a, op_b):
@@ -69,6 +72,14 @@ class CPU:
     def handle_RET(self, op_a, op_b):
         self.handle_POP(0x04)
         self.pc = self.reg[0x04]
+
+    def handle_CMP(self, operand_a, operand_b):
+        if operand_a < operand_b:
+            self.FL = self.FL + 0b00000100
+        elif operand_a > operand_b:
+            self.FL = self.FL + 0b00000010
+        else:
+            self.FL = self.FL + 0b00000001
 
 
     def ram_read(self, MAR):
@@ -136,8 +147,11 @@ class CPU:
         POP = 0b01000110
         CALL = 0b01010000
         RET = 0b00010001
+        CMP = 0b10100111
+
+
         
-        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET}
+        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP}
         
         self.running = True
 
@@ -145,6 +159,7 @@ class CPU:
             self.IR = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
+            self.trace()
 
 
             number_of_ops = (self.IR >> 6) & 0b11
@@ -152,6 +167,7 @@ class CPU:
             if self.IR in opcodes:
                 self.dispatch[self.IR](operand_a, operand_b)
                 self.pc += number_of_ops + 1
+                self.trace()
                 
             else:
                 print("Invalid operand")
