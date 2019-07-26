@@ -31,7 +31,9 @@ class CPU:
         CMP = 0b10100111
         JMP = 0b01010100
         JEQ = 0b01010101
+        JNE = 0b01010110
         
+
         self.dispatch = {
             HLT: self.handle_HLT,
             LDI: self.handle_LDI,
@@ -43,7 +45,8 @@ class CPU:
             RET: self.handle_RET,
             CMP: self.handle_CMP,
             JMP: self.handle_JMP,
-            JEQ: self.handle_JEQ
+            JEQ: self.handle_JEQ,
+            JNE: self.handle_JNE
         }
 
     def handle_HLT(self, op_a, op_b):
@@ -85,7 +88,7 @@ class CPU:
             self.FL = self.FL + 0b00000001
 
     def handle_JMP(self, operand_a, op_b):
-        self.PC = self.reg[a]
+        self.PC = self.reg[operand_a]
     
     def handle_JEQ(self, operand_a, op_b):
         if self.FL & 0b0000000001:
@@ -93,7 +96,11 @@ class CPU:
         else:
             pass
 
-
+    def handle_JNE(self, operand_a, op_b):
+        if not self.FL & 0b00000001:
+            self.handle_JMP(operand_a, None)
+        else:
+            pass
 
     def ram_read(self, MAR):
         # print(f'READ ADDRESS: {read_address}')
@@ -163,10 +170,11 @@ class CPU:
         CMP = 0b10100111
         JMP = 0b01010100
         JEQ = 0b01010101
+        JNE = 0b01010110
 
 
         
-        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP, JMP, JEQ}
+        opcodes = {HLT, LDI, PRN, MUL, JNE, PUSH, POP, CALL, RET, CMP, JMP, JEQ}
         
         self.running = True
 
