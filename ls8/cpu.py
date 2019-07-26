@@ -12,7 +12,7 @@ class CPU:
         self.pc = 0x00
         self.MAR = 0  # Memory addrress for reading or writing to
         self.MDR = 0  # value to write or that was just read
-        self.FL = 0b0000000
+        self.FL = 0b00000000
         self.running = False
         self.SP = 0x07  # R7 == stack pointer
         self.reg[self.SP] = 0xf4  
@@ -80,27 +80,21 @@ class CPU:
         self.pc = self.reg[0x04]
 
     def handle_CMP(self, operand_a, operand_b):
-        if operand_a < operand_b:
-            self.FL = self.FL + 0b00000100
-        elif operand_a > operand_b:
-            self.FL = self.FL + 0b00000010
-        else:
-            self.FL = self.FL + 0b00000001
+        self.alu('CMP', operand_a, operand_b)
 
     def handle_JMP(self, operand_a, op_b):
-        self.PC = self.reg[operand_a]
+        self.pc = self.reg[operand_a]
+        print(f"JUMPING TO {self.pc}")
     
     def handle_JEQ(self, operand_a, op_b):
-        if self.FL & 0b0000000001:
-            self.handle_JMP(operand_a, None)
-        else:
-            pass
+        if self.FL == 0b00000001:
+            self.handle_JMP(operand_a, op_b)
+
 
     def handle_JNE(self, operand_a, op_b):
-        if not self.FL & 0b00000001:
-            self.handle_JMP(operand_a, None)
-        else:
-            pass
+        if not self.FL == 0b00000100:
+            self.handle_JMP(operand_a, op_b)
+
 
     def ram_read(self, MAR):
         # print(f'READ ADDRESS: {read_address}')
@@ -131,6 +125,18 @@ class CPU:
             self.reg[reg_a] += self.reg[reg_b]
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            # self.FL = self.FL & 0b11111000
+            if self.reg[reg_a] < self.reg[reg_b]:
+                print(f"{self.reg[reg_a]} is less than {self.reg[reg_b]}")
+                self.FL = self.FL + 0b00000100
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                print(f"{self.reg[reg_a]} is greater than {self.reg[reg_b]}")
+                
+                self.FL = self.FL + 0b00000010
+            else:
+                print(f"{self.reg[reg_a]} is equal to {self.reg[reg_b]}")
+                self.FL = self.FL + 0b00000001
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -142,7 +148,7 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
-            #self.fl,
+            # self.FL,
             #self.ie,
             self.ram_read(self.pc),
             self.ram_read(self.pc + 1),
@@ -156,8 +162,7 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        self.IR = self.pc
-        self.trace()
+        self.IR = self.ram[self.pc]
 
         HLT = 0b00000001
         LDI = 0b10000010
@@ -174,7 +179,9 @@ class CPU:
 
 
         
-        opcodes = {HLT, LDI, PRN, MUL, JNE, PUSH, POP, CALL, RET, CMP, JMP, JEQ}
+        opcodes = {
+            HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP, JMP, JEQ, JNE
+        }
         
         self.running = True
 
@@ -182,7 +189,7 @@ class CPU:
             self.IR = self.ram[self.pc]
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
-            self.trace()
+            # self.trace()
 
 
             number_of_ops = (self.IR >> 6) & 0b11
@@ -190,11 +197,14 @@ class CPU:
             if self.IR in opcodes:
                 self.dispatch[self.IR](operand_a, operand_b)
                 self.pc += number_of_ops + 1
-                self.trace()
+            
                 
             else:
+                print(f"{self.IR} is not valid")
                 print("Invalid operand")
                 sys.exit()
+            
+
 
 
             # # exit condition
