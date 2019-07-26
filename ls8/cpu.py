@@ -30,7 +30,7 @@ class CPU:
         RET = 0b00010001
         CMP = 0b10100111
         JMP = 0b01010100
-
+        JEQ = 0b01010101
         
         self.dispatch = {
             HLT: self.handle_HLT,
@@ -42,7 +42,8 @@ class CPU:
             CALL: self.handle_CALL,
             RET: self.handle_RET,
             CMP: self.handle_CMP,
-            JMP: self.handle_JMP
+            JMP: self.handle_JMP,
+            JEQ: self.handle_JEQ
         }
 
     def handle_HLT(self, op_a, op_b):
@@ -85,6 +86,12 @@ class CPU:
 
     def handle_JMP(self, operand_a, op_b):
         self.PC = self.reg[a]
+    
+    def handle_JEQ(self, operand_a, op_b):
+        if self.FL & 0b0000000001:
+            self.handle_JMP(operand_a, None)
+        else:
+            pass
 
 
 
@@ -155,11 +162,11 @@ class CPU:
         RET = 0b00010001
         CMP = 0b10100111
         JMP = 0b01010100
-
+        JEQ = 0b01010101
 
 
         
-        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP, JMP}
+        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP, JMP, JEQ}
         
         self.running = True
 
