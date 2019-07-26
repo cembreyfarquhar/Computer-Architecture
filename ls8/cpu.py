@@ -29,6 +29,7 @@ class CPU:
         CALL = 0b01010000
         RET = 0b00010001
         CMP = 0b10100111
+        JMP = 0b01010100
 
         
         self.dispatch = {
@@ -40,7 +41,8 @@ class CPU:
             POP: self.handle_POP,
             CALL: self.handle_CALL,
             RET: self.handle_RET,
-            CMP: self.handle_CMP
+            CMP: self.handle_CMP,
+            JMP: self.handle_JMP
         }
 
     def handle_HLT(self, op_a, op_b):
@@ -80,6 +82,10 @@ class CPU:
             self.FL = self.FL + 0b00000010
         else:
             self.FL = self.FL + 0b00000001
+
+    def handle_JMP(self, operand_a, op_b):
+        self.PC = self.reg[a]
+
 
 
     def ram_read(self, MAR):
@@ -148,10 +154,12 @@ class CPU:
         CALL = 0b01010000
         RET = 0b00010001
         CMP = 0b10100111
+        JMP = 0b01010100
+
 
 
         
-        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP}
+        opcodes = {HLT, LDI, PRN, MUL, PUSH, POP, CALL, RET, CMP, JMP}
         
         self.running = True
 
